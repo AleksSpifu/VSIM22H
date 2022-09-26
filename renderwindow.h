@@ -132,6 +132,8 @@ private:
 
     XYZ* xyz{nullptr};
 
+    class RegularTriangulation *regTriangulation{nullptr};
+
     Camera mCamera1;
     Camera mCamera2;
     Camera* mActiveCamera{nullptr};

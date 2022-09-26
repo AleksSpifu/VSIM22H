@@ -26,6 +26,7 @@ public:
 
     void setOrbitPoint(QVector3D pt);
     void orbit(float dt);
+    void setVertices(std::vector<Vertex> in) override {mVertices = in;};
 };
 
 #endif // LIGHT_H

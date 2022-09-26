@@ -19,7 +19,8 @@
 #include "xyz.h"
 #include "texture.h"
 #include "light.h"
-
+#include "LasTextReader.h"
+#include "regulartriangulation.h"
 
 
 //~~//
@@ -51,9 +52,11 @@ RenderWindow::RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow)
     }
 
     mRenderTimer = new QTimer(this);
-
     mCamera2.SetPosition({43.5, -5.4, 5});
     xyz = new XYZ;
+    regTriangulation = new RegularTriangulation("merged.txt");
+    mObjects.push_back(regTriangulation);
+
 
 }
 
@@ -150,7 +153,6 @@ void RenderWindow::init()
         (*i)->init(mMatrixUniform0);
     }
 
-    // Oppgave 3
     mLight = new Light();
     mLight->init(2);
     mLight->setOrbitPoint({0, 0, 20});

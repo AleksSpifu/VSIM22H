@@ -7,10 +7,12 @@ TARGET      = 3D-programmering
 
 SOURCES += main.cpp \
     camera.cpp \
+    lastextreader.cpp \
     light.cpp \
     logger.cpp \
     mainwindow.cpp \
     octahedronball.cpp \
+    regulartriangulation.cpp \
     renderwindow.cpp \
     shader.cpp \
     texture.cpp \
@@ -21,11 +23,13 @@ SOURCES += main.cpp \
     xyz.cpp
 
 HEADERS += \
+    lastextreader.h \
     light.h \
     camera.h \
     logger.h \
     mainwindow.h \
     octahedronball.h \
+    regulartriangulation.h \
     renderwindow.h \
     shader.h \
     texture.h \
