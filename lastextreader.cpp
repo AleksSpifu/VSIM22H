@@ -9,13 +9,14 @@
 
 
 
-Las::PointCloud Las::LasTextReader::ReadFile(std::string fileName)
+void Las::LasTextReader::ReadFile(std::string fileName, PointCloud& out)
 {
     std::ifstream file;
     file.open("../3Dprog22/txt_files/"+fileName);
-    PointCloud out;
+
     if (file.is_open())
     {
+        std::cout << "file is open, reading" << std::endl;
         double x,y,z;
         file >> x >> y >> z;
         out.minMax.xMax = x;
@@ -31,58 +32,186 @@ Las::PointCloud Las::LasTextReader::ReadFile(std::string fileName)
              else if (x < out.minMax.xMin) out.minMax.xMin = x;
              if (y > out.minMax.yMax) out.minMax.yMax = y;
              else if (y < out.minMax.yMin) out.minMax.yMin = y;
+             if (z < out.minMax.zMin) out.minMax.zMin = z;
+             else if (z > out.minMax.zMax) out.minMax.zMax = z;
              out.minMax.points++;
         }
 
         file.seekg(0, std::ios_base::beg);
 
+        std::cout << "finished reading file, putting points in out struct" << std::endl;
         out.points.reserve(out.minMax.points);
 
         while (!file.eof())
         {
             file >> x >> y >> z;
-            out.points.push_back(XYZ{x,y,z});
+            x = x - out.minMax.xMin;
+            y = y - out.minMax.yMin;
+            z = z - out.minMax.zMin;
+
         }
 
         file.close();
-        std::cout << out.minMax.xMax-out.minMax.xMin << "\t" << out.minMax.yMax-out.minMax.yMin << "\t" << out.minMax.points << "\t" << std::endl;
-        std::cout << out.points.size() << std::endl;
+
     } else {
         std::cout << "could not open file" << std::endl;
     }
-    return out;
+
 }
 
-Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fileName, int resolution, float scale)
+Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fileName, int resolution, float size)
 {
     PointCloudMesh out;
-    PointCloud pointCloud = LasTextReader::ReadFile(fileName);
+    PointCloud pointCloud;
 
+    std::ifstream file;
+    file.open("../3Dprog22/txt_files/"+fileName);
 
-    for (int x = 0; x < resolution; x++) {
-        for (int y = 0; y < resolution; y++) {
-            out.vertices.push_back(Vertex{x*(scale/(float)resolution), y*(scale/(float)resolution),2.f, 0,0,0});
-            out.vertices.push_back(Vertex{(x+1)*(scale/(float)resolution), y*(scale/(float)resolution),1.5f, 0.5,0.5,0});
-            out.vertices.push_back(Vertex{x*(scale/(float)resolution), (y+1)*(scale/(float)resolution),1.5f, 0.5,0.5,0});
+    if (file.is_open())
+    {
+        std::cout << "file is open, reading" << std::endl;
+        double x,y,z;
+        file >> x >> y >> z;
+        pointCloud.minMax.xMax = x;
+        pointCloud.minMax.yMax = y;
+        pointCloud.minMax.zMax = z;
+        pointCloud.minMax.xMin = x;
+        pointCloud.minMax.yMin = y;
+        pointCloud.minMax.zMin = z;
 
-            out.vertices.push_back(Vertex{(x+1)*(scale/(float)resolution), y*(scale/(float)resolution),1.5f, 0.5,0.5,0});
-            out.vertices.push_back(Vertex{(x+1)*(scale/(float)resolution), (y+1)*(scale/(float)resolution),1.f, 1,1,0});
-            out.vertices.push_back(Vertex{x*(scale/(float)resolution), (y+1)*(scale/(float)resolution),1.5f, 0.5,0.5,0});
+        pointCloud.minMax.points++;
 
-            Triangle tri1;
-            tri1.indicies[0] = 0 + out.indicesAndNeighbours.size();
-            tri1.indicies[1] = 1 + out.indicesAndNeighbours.size();
-            tri1.indicies[2] = 2 + out.indicesAndNeighbours.size();
-            out.indicesAndNeighbours.push_back(tri1);
-
-            Triangle tri2;
-            tri2.indicies[0] = 0 + out.indicesAndNeighbours.size();
-            tri2.indicies[1] = 1 + out.indicesAndNeighbours.size();
-            tri2.indicies[2] = 2 + out.indicesAndNeighbours.size();
-            out.indicesAndNeighbours.push_back(tri2);
+        while (!file.eof())
+        {
+             file >> x >> y >> z;
+             if (x > pointCloud.minMax.xMax) pointCloud.minMax.xMax = x;
+             else if (x < pointCloud.minMax.xMin) pointCloud.minMax.xMin = x;
+             if (y > pointCloud.minMax.yMax) pointCloud.minMax.yMax = y;
+             else if (y < pointCloud.minMax.yMin) pointCloud.minMax.yMin = y;
+             if (z < pointCloud.minMax.zMin) pointCloud.minMax.zMin = z;
+             else if (z > pointCloud.minMax.zMax) pointCloud.minMax.zMax = z;
+             pointCloud.minMax.points++;
         }
+
+        file.close();
+
+
+        std::cout << "finished reading file, putting points in out struct" << std::endl;
+        pointCloud.points.reserve(pointCloud.minMax.points);
+
+        float step = size / (float)resolution;
+
+        float span = std::max(pointCloud.minMax.xMax - pointCloud.minMax.xMin, pointCloud.minMax.yMax - pointCloud.minMax.yMin);
+
+        span += 0.001f; // Denne er for å unngå avrundingsfeil. Ikke spør hvor lang tid det tok før jeg fant ut det.
+
+        std::vector<std::vector<std::pair<int, float>>> averageHeights(resolution, std::vector<std::pair<int, float>>(resolution));
+
+        file.open("../3Dprog22/txt_files/"+fileName);
+        while (!file.eof())
+        {
+            file >> x >> y >> z;
+
+            float normalisedx = x - pointCloud.minMax.xMin;
+            float normalisedy = y - pointCloud.minMax.yMin;
+            float normalisedz = z - pointCloud.minMax.zMin;
+
+            int xPos, yPos;
+            xPos = (normalisedx / span) * resolution;
+            yPos = (normalisedy / span) * resolution;
+
+
+            averageHeights[xPos][yPos].first++;
+            averageHeights[xPos][yPos].second += normalisedz;
+
+
+        }
+
+        float scaleDifference = size / span;
+        float heightSpan = pointCloud.minMax.zMax - pointCloud.minMax.zMin;
+        std::cout << "scaledifference " << scaleDifference << std::endl;
+
+        std::cout << "making mesh" << std::endl;
+
+        for (int x = 0; x * step < size; x++) {
+            for (int y = 0; y * step < size; y++) {
+                float height;
+                if (averageHeights[x][y].first == 0) {
+                    height = 0;
+                } else {
+                    height = averageHeights[x][y].second / (float)averageHeights[x][y].first;
+                }
+
+                out.vertices.push_back(Vertex(x * step, y * step, height * scaleDifference, 1,1,1));
+            }
+        }
+
+        file.close();
+
+        std::cout << "returning" << std::endl;
+
+    } else {
+        std::cout << "could not open file" << std::endl;
     }
+
+
+
     return out;
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

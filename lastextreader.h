@@ -8,7 +8,7 @@
 namespace Las {
 
 struct MinAndMax {
-    double xMax{0}, xMin{0}, yMax{0}, yMin{0};
+    double xMax{0}, xMin{0}, yMax{0}, yMin{0}, zMin{0}, zMax{0};
     unsigned long long points{0};
 };
 
@@ -36,8 +36,8 @@ class LasTextReader
 {
 public:
 
-    static PointCloud ReadFile(std::string fileName);
-    static PointCloudMesh GenerateVerticesFromFile(std::string fileName, int resolution, float scale = 5.f);
+    static PointCloudMesh GenerateVerticesFromFile(std::string fileName, int resolution, float size = 10.f);
+    static void ReadFile(std::string fileName, PointCloud &out);
 };
 
 }

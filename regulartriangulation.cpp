@@ -3,7 +3,7 @@
 
 RegularTriangulation::RegularTriangulation(std::string fileName)
 {
-    auto pointCloud = Las::LasTextReader::GenerateVerticesFromFile(fileName, 2, 10.f);
+    auto pointCloud = Las::LasTextReader::GenerateVerticesFromFile(fileName, 500, 60.f);
     mVertices = pointCloud.vertices;
     for (int i = 0; i < mVertices.size(); i++) {
         mIndices.push_back(i);
@@ -69,5 +69,5 @@ void RegularTriangulation::draw()
     // GL_FALSE for QMatrix4x4
     glUniformMatrix4fv( mMatrixUniform, 1, GL_FALSE, mMatrix.constData());
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIBO);
-    glDrawElements(GL_TRIANGLE_FAN, mVertices.size(), GL_UNSIGNED_INT, reinterpret_cast<const void*>(0));//mVertices.size());
+    glDrawElements(GL_POINTS, mVertices.size(), GL_UNSIGNED_INT, reinterpret_cast<const void*>(0));//mVertices.size());
 }
