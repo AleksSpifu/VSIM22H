@@ -12,7 +12,7 @@
 void Las::LasTextReader::ReadFile(std::string fileName, PointCloud& out)
 {
     std::ifstream file;
-    file.open("../3Dprog22/txt_files/"+fileName);
+    file.open("../VSIM22H/txt_files/"+fileName);
 
     if (file.is_open())
     {
@@ -65,7 +65,7 @@ Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fil
     PointCloud pointCloud;
 
     std::ifstream file;
-    file.open("../3Dprog22/txt_files/"+fileName);
+    file.open("../VSIM22H/txt_files/"+fileName);
 
     if (file.is_open())
     {
@@ -107,7 +107,7 @@ Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fil
 
         std::vector<std::vector<std::pair<int, float>>> averageHeights(resolution, std::vector<std::pair<int, float>>(resolution));
 
-        file.open("../3Dprog22/txt_files/"+fileName);
+        file.open("../VSIM22H/txt_files/"+fileName);
         while (!file.eof())
         {
             file >> x >> y >> z;

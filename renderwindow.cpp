@@ -22,7 +22,7 @@
 #include "LasTextReader.h"
 #include "regulartriangulation.h"
 
-
+// hei
 //~~//
 
 float MinsteKvadratersFunksjon(float x) {
@@ -116,11 +116,11 @@ void RenderWindow::init()
     //NB: hardcoded path to files! You have to change this if you change directories for the project.
     //Qt makes a build-folder besides the project folder. That is why we go down one directory
     // (out of the build-folder) and then up into the project folder.
-    mShaderProgram[0] = new Shader("../3Dprog22/plainshader.vert", "../3Dprog22/plainshader.frag");
+    mShaderProgram[0] = new Shader("../VSIM22H/plainshader.vert", "../VSIM22H/plainshader.frag");
     mLogger->logText("Plain shader program id: " + std::to_string(mShaderProgram[0]->getProgram()) );
-    mShaderProgram[1]= new Shader("../3Dprog22/textureshader.vert", "../3Dprog22/textureshader.frag");
+    mShaderProgram[1]= new Shader("../VSIM22H/textureshader.vert", "../VSIM22H/textureshader.frag");
     mLogger->logText("Texture shader program id: " + std::to_string(mShaderProgram[1]->getProgram()) );
-    mShaderProgram[2] = new Shader("../3Dprog22/phongshader.vert", "../3Dprog22/phongshader.frag");
+    mShaderProgram[2] = new Shader("../VSIM22H/phongshader.vert", "../VSIM22H/phongshader.frag");
     mLogger->logText("Texture shader program id: " + std::to_string(mShaderProgram[2]->getProgram()));
 
     setupPlainShader(0);
@@ -131,8 +131,8 @@ void RenderWindow::init()
     //Returns a pointer to the Texture class. This reads and sets up the texture for OpenGL
     //and returns the Texture ID that OpenGL uses from Texture::id()
     mTexture[0] = new Texture();
-    //mTexture[1] = new Texture("../3Dprog22/Assets/gress.bmp");
-    //mTexture[2] = new Texture("../3Dprog22/Assets/hund.bmp");
+    //mTexture[1] = new Texture("../VSIM22H/Assets/gress.bmp");
+    //mTexture[2] = new Texture("../VSIM22H/Assets/hund.bmp");
 
     //Set the textures loaded to a texture unit (also called a texture slot)
     glActiveTexture(GL_TEXTURE0);
@@ -423,32 +423,37 @@ void RenderWindow::Tick(float deltaTime)
     QVector3D AttemptedMovement;
     if (mCurrentInputs[Qt::Key_W]) {
         auto dir = mActiveCamera->Forward();
+        dir *= -1;
         AttemptedMovement += dir;
     }
     if (mCurrentInputs[Qt::Key_S]) {
         auto dir = mActiveCamera->Forward();
-        dir *= -1;
         AttemptedMovement += dir;
     }
     if (mCurrentInputs[Qt::Key_A]) {
-            auto dir = mActiveCamera->Right();
-            dir *= -1;
-            AttemptedMovement += dir;
+        auto dir = mActiveCamera->Right();
+        AttemptedMovement += dir;
     }
     if (mCurrentInputs[Qt::Key_D]) {
-            auto dir = mActiveCamera->Right();
-            AttemptedMovement += dir;
+        auto dir = mActiveCamera->Right();
+        dir *= -1;
+        AttemptedMovement += dir;
+    }
+    if (mCurrentInputs[Qt::Key_E]) {
+        QVector3D dir = {0,0,1};
+        AttemptedMovement += dir;
+    }
+    if (mCurrentInputs[Qt::Key_Q]) {
+        QVector3D dir = {0,0,-1};
+        AttemptedMovement += dir;
     }
 
     mLight->orbit(deltaTime);
-    mCamera1.Tick(deltaTime);
-
-
-    AttemptedMovement.setZ(0);
-    AttemptedMovement.normalize();
 
     AttemptedMovement *= deltaTime * 25;
     if (mCurrentInputs[Qt::Key_Shift]) AttemptedMovement *= 2;
+    mActiveCamera->mVmatrix.translate(AttemptedMovement);
 
+    mCamera1.Tick(deltaTime);
 
 }

@@ -77,7 +77,7 @@ float TriangleSurface::myEquation(float x, float y)
 void TriangleSurface::WriteToFile(std::string fileName)
 {
     std::ofstream file;
-    file.open("../3Dprog22/txt_files/"+fileName);
+    file.open("../VSIM22H/txt_files/"+fileName);
     if(file.is_open())
     {
         file << mVertices.size() << std::endl;
@@ -93,7 +93,7 @@ void TriangleSurface::WriteToFile(std::string fileName)
 void TriangleSurface::ReadFromFile(std::string fileName)
 {
     std::ifstream file;
-    file.open("../3Dprog22/txt_files/"+fileName);
+    file.open("../VSIM22H/txt_files/"+fileName);
     if (file.is_open())
     {
         int x{0};
