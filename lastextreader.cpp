@@ -169,16 +169,23 @@ Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fil
                 tri.indicies[1] = y*resolution+x+1;
                 tri.indicies[2] = (y+1)*resolution+x;
 
+                tri.neighbours[0] = std::max((resolution-1)*y*2+1+2*x, -1);
+                tri.neighbours[1] = std::max((resolution-1)*y*2-1+2*x, -1);
+                tri.neighbours[2] = std::max((resolution-1)*(y-1)*2+1+2*x, -1);
+
                 Triangle tri2;
                 tri2.indicies[0] = (y+1)*resolution+x;
                 tri2.indicies[1] = y*resolution+x+1;
                 tri2.indicies[2] = (y+1)*resolution+x+1;
 
+                tri2.neighbours[0] = std::max((resolution-1)*y*2+2+2*x, -1);
+                tri2.neighbours[1] = std::max((resolution-1)*y*2-1+2*x, -1);
+                tri2.neighbours[2] = std::max((resolution-1)*y*2+2*x, -1);
+
                 out.indicesAndNeighbours.push_back(tri);
                 out.indicesAndNeighbours.push_back(tri2);
             }
         }
-        std::cout << out.indicesAndNeighbours.size() * 3 << std::endl;
 
         file.close();
 
