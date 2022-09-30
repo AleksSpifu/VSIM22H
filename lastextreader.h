@@ -38,6 +38,7 @@ public:
 
     static PointCloudMesh GenerateVerticesFromFile(std::string fileName, int resolution, float size = 10.f);
     static void ReadFile(std::string fileName, PointCloud &out);
+    static double GetHeight(std::pair<int, float> averageHeights);
 };
 
 }

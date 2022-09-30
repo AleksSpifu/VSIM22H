@@ -59,6 +59,15 @@ void Las::LasTextReader::ReadFile(std::string fileName, PointCloud& out)
 
 }
 
+double Las::LasTextReader::GetHeight(std::pair<int, float> averageHeights)
+{
+    if (averageHeights.first == 0) {
+        return 0;
+    } else {
+        return averageHeights.second / (float)averageHeights.first;
+    }
+}
+
 Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fileName, int resolution, float size)
 {
     PointCloudMesh out;
@@ -133,18 +142,43 @@ Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fil
 
         std::cout << "making mesh" << std::endl;
 
-        for (int x = 0; x * step < size; x++) {
-            for (int y = 0; y * step < size; y++) {
-                float height;
-                if (averageHeights[x][y].first == 0) {
-                    height = 0;
+        out.indicesAndNeighbours.reserve(resolution * resolution * 2);
+
+        for (int y = 0; y * step < size; y++) {
+            for (int x = 0; x * step < size; x++) {
+                float height = GetHeight(averageHeights[x][y]);
+
+                if (x == 0 || y == 0) {
+                    out.vertices.push_back(Vertex(x * step, y * step, height * scaleDifference, 0,0,1, ((float)x*step) / size, ((float)y*step) / size));
                 } else {
-                    height = averageHeights[x][y].second / (float)averageHeights[x][y].first;
+
+                    QVector3D adjacentVert1{(x-1)*step, y*step, (float)GetHeight(averageHeights[x-1][y]) * scaleDifference};
+                    QVector3D adjacentVert2{x*step, (y-1)*step, (float)GetHeight(averageHeights[x][y-1]) * scaleDifference};
+                    QVector3D mypos{x * step, y * step, height * scaleDifference};
+
+                    QVector3D tri2normal = QVector3D::crossProduct(adjacentVert1-mypos, adjacentVert2-mypos);
+
+                    out.vertices.push_back(Vertex(x * step, y * step, height * scaleDifference, tri2normal.x(),tri2normal.y(),tri2normal.z(), ((float)x*step) / size, ((float)y*step) / size));
                 }
 
-                out.vertices.push_back(Vertex(x * step, y * step, height * scaleDifference, 1,1,1));
+                if (x == resolution-1 || y == resolution-1) {
+                    continue;
+                }
+                Triangle tri;
+                tri.indicies[0] = y*resolution+x;
+                tri.indicies[1] = y*resolution+x+1;
+                tri.indicies[2] = (y+1)*resolution+x;
+
+                Triangle tri2;
+                tri2.indicies[0] = (y+1)*resolution+x;
+                tri2.indicies[1] = y*resolution+x+1;
+                tri2.indicies[2] = (y+1)*resolution+x+1;
+
+                out.indicesAndNeighbours.push_back(tri);
+                out.indicesAndNeighbours.push_back(tri2);
             }
         }
+        std::cout << out.indicesAndNeighbours.size() * 3 << std::endl;
 
         file.close();
 

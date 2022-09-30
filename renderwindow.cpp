@@ -54,7 +54,7 @@ RenderWindow::RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow)
     mRenderTimer = new QTimer(this);
     mCamera2.SetPosition({43.5, -5.4, 5});
     xyz = new XYZ;
-    regTriangulation = new RegularTriangulation("merged.txt");
+    regTriangulation = new RegularTriangulation("vestlandet.txt");
     mObjects.push_back(regTriangulation);
 
 
@@ -198,13 +198,8 @@ void RenderWindow::render()
      glUniform3f(mLightColorUniform, mLight->mLightColor.x(), mLight->mLightColor.y(), mLight->mLightColor.z());
      glUniform1f(mSpecularStrengthUniform, mLight->mSpecularStrenght);
 
-
-
-     glUseProgram(mShaderProgram[0]->getProgram() );
-     mActiveCamera->update(pMatrixUniform0, vMatrixUniform0);
-
     for (auto it=mObjects.begin(); it!= mObjects.end(); it++) {
-        glUniformMatrix4fv(mMatrixUniform0, 1, GL_FALSE, (*it)->mMatrix.constData());
+        glUniformMatrix4fv(mMatrixUniform2, 1, GL_FALSE, (*it)->mMatrix.constData());
         (*it)->draw();
     }
 
@@ -440,11 +435,11 @@ void RenderWindow::Tick(float deltaTime)
         AttemptedMovement += dir;
     }
     if (mCurrentInputs[Qt::Key_E]) {
-        QVector3D dir = {0,0,1};
+        QVector3D dir = {0,0,-1};
         AttemptedMovement += dir;
     }
     if (mCurrentInputs[Qt::Key_Q]) {
-        QVector3D dir = {0,0,-1};
+        QVector3D dir = {0,0,1};
         AttemptedMovement += dir;
     }
 
