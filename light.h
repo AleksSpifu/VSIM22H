@@ -21,8 +21,8 @@ public:
     GLfloat mLightStrenght{0.7f};
     QVector3D mLightColor{0.9f, 0.9f, 0.9f};    //Yellow
 
-    GLfloat mSpecularStrenght{0.9f};
-    GLint mSpecularExponent{4};
+    GLfloat mSpecularStrenght{0.2f};
+    GLint mSpecularExponent{1};
 
     void setOrbitPoint(QVector3D pt);
     void orbit(float dt);

@@ -57,6 +57,9 @@ void RegularTriangulation::init(GLint matrixUniform)
                 );
     glEnableVertexAttribArray(1);
 
+    glVertexAttribPointer(2, 2,  GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)( 6 * sizeof(GLfloat)) );
+    glEnableVertexAttribArray(2);
+
     //enable the matrixUniform
     // mMatrixUniform = glGetUniformLocation( matrixUniform, "matrix" );
     glGenBuffers(1, &mIBO);

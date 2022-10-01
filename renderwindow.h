@@ -126,6 +126,7 @@ protected:
     void Tick(float deltaTime);
 
 private:
+    QPoint mMouseHeldPosition;
     std::vector<VisualObject*> mObjects;
 
     Triangle* triangle{nullptr};

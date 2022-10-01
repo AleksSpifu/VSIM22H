@@ -19,11 +19,12 @@ private:
     VisualObject* mTarget{nullptr};
     float mDistanceToTarget{5.f};
     float mZoomSensitivity = 0.1f;
-    float mMovementSensitivity = 0.8f;
+    float mMovementSensitivity = 0.5f;
     bool mCameraIsBusy{false};
     bool mAllowDirectionChange{false};
     bool mStaticPosition{false};
     QVector3D oldTargetPos;
+    float pitch{0.f}, yaw{0.f};
 public:
      QMatrix4x4 mVmatrix{};
     QVector3D GetPosition();
@@ -42,6 +43,7 @@ public:
     void Tick(float deltaTime);
     void Zoom(float diff);
     void setAllowedToFollow(bool status);
+
     QVector3D Forward();
     QVector3D Right();
 //    void rotate(){mVmatrix.rotate(1, {0, 0, 1});}
@@ -49,6 +51,8 @@ public:
     QVector3D Up();
     void SetPosition(const QVector3D &newPos);
     void update(GLint pMat, GLint vMat);
+    void Move(QVector3D direction, float speed);
+    void firstPersonMouseMove(float x, float y);
 };
 
 

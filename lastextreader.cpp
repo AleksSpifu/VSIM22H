@@ -68,6 +68,21 @@ double Las::LasTextReader::GetHeight(std::pair<int, float> averageHeights)
     }
 }
 
+void Las::LasTextReader::WriteToFile(std::string fileName, const std::vector<Vertex>& mVertices)
+{
+    std::ofstream file;
+    file.open("../VSIM22H/txt_files/"+fileName);
+    if(file.is_open())
+    {
+        file << mVertices.size() << std::endl;
+        for(auto i = 0; i < mVertices.size(); i++)
+        {
+            file << mVertices[i] << std::endl;
+        }
+        file.close();
+    }
+}
+
 Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fileName, int resolution, float size)
 {
     PointCloudMesh out;
@@ -149,7 +164,7 @@ Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fil
                 float height = GetHeight(averageHeights[x][y]);
 
                 if (x == 0 || y == 0) {
-                    out.vertices.push_back(Vertex(x * step, y * step, height * scaleDifference, 0,0,1, ((float)x*step) / size, ((float)y*step) / size));
+                    out.vertices.push_back(Vertex(x * step, y * step, height * scaleDifference, 0,0,1, ((float)x / (float)resolution), ((float)y / (float)resolution)));
                 } else {
 
                     QVector3D adjacentVert1{(x-1)*step, y*step, (float)GetHeight(averageHeights[x-1][y]) * scaleDifference};
@@ -158,7 +173,7 @@ Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fil
 
                     QVector3D tri2normal = QVector3D::crossProduct(adjacentVert1-mypos, adjacentVert2-mypos);
 
-                    out.vertices.push_back(Vertex(x * step, y * step, height * scaleDifference, tri2normal.x(),tri2normal.y(),tri2normal.z(), ((float)x*step) / size, ((float)y*step) / size));
+                    out.vertices.push_back(Vertex(x * step, y * step, height * scaleDifference, tri2normal.x(),tri2normal.y(),tri2normal.z(),  ((float)x / (float)resolution), ((float)y / (float)resolution)));
                 }
 
                 if (x == resolution-1 || y == resolution-1) {
@@ -188,6 +203,8 @@ Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fil
         }
 
         file.close();
+
+        WriteToFile(fileName + "verts.txt", out.vertices);
 
         std::cout << "returning" << std::endl;
 

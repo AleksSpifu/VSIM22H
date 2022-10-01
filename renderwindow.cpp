@@ -132,13 +132,13 @@ void RenderWindow::init()
     //and returns the Texture ID that OpenGL uses from Texture::id()
     mTexture[0] = new Texture();
     //mTexture[1] = new Texture("../VSIM22H/Assets/gress.bmp");
-    //mTexture[2] = new Texture("../VSIM22H/Assets/hund.bmp");
+    mTexture[1] = new Texture("../VSIM22H/Assets/hund.bmp");
 
     //Set the textures loaded to a texture unit (also called a texture slot)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mTexture[0]->id());
-    //glActiveTexture(GL_TEXTURE1);
-    //glBindTexture(GL_TEXTURE_2D, mTexture[1]->id());
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, mTexture[1]->id());
     //glActiveTexture(GL_TEXTURE2);
     //glBindTexture(GL_TEXTURE_2D, mTexture[2]->id());
 
@@ -198,8 +198,13 @@ void RenderWindow::render()
      glUniform3f(mLightColorUniform, mLight->mLightColor.x(), mLight->mLightColor.y(), mLight->mLightColor.z());
      glUniform1f(mSpecularStrengthUniform, mLight->mSpecularStrenght);
 
+
+     glUseProgram(mShaderProgram[2]->getProgram());
+     mActiveCamera->update(pMatrixUniform2, vMatrixUniform2);
+
     for (auto it=mObjects.begin(); it!= mObjects.end(); it++) {
         glUniformMatrix4fv(mMatrixUniform2, 1, GL_FALSE, (*it)->mMatrix.constData());
+        glUniform1i(mTextureUniform2, 1);
         (*it)->draw();
     }
 
@@ -339,6 +344,10 @@ void RenderWindow::mousePressEvent(QMouseEvent *event)
     //    if (event->button() == Qt::LeftButton) {
     //        mCamera.setStatus(true);
     //    }
+    if (event->button() == Qt::RightButton) {
+        setCursor(Qt::BlankCursor);
+        mMouseHeldPosition = event->pos();
+    }
 }
 
 void RenderWindow::mouseReleaseEvent(QMouseEvent *event)
@@ -347,6 +356,9 @@ void RenderWindow::mouseReleaseEvent(QMouseEvent *event)
     //    if (event->button() == Qt::LeftButton) {
     //        mCamera.setStatus(false);
     //    }
+    if (event->button() == Qt::RightButton) {
+        setCursor(Qt::ArrowCursor);
+    }
 }
 
 void RenderWindow::mouseMoveEvent(QMouseEvent *event)
@@ -360,12 +372,15 @@ void RenderWindow::mouseMoveEvent(QMouseEvent *event)
     float diffX = previousX - newX;
     float diffY = previousY - newY;
 
-    if (mCurrentInputs[Qt::LeftButton]) {
-        mActiveCamera->followMouseMovements(diffX, diffY);
+    if (mCurrentInputs[Qt::RightButton]) {
+        mActiveCamera->firstPersonMouseMove(diffX, diffY);
+        QCursor::setPos(mapToGlobal(mMouseHeldPosition));
+    } else {
+        previousX = newX;
+        previousY = newY;
     }
 
-    previousX = newX;
-    previousY = newY;
+
 }
 
 void RenderWindow::keyPressEvent(QKeyEvent *event)
@@ -376,6 +391,7 @@ void RenderWindow::keyPressEvent(QKeyEvent *event)
     {
         mMainWindow->close();
     }
+
 
 }
 
@@ -418,20 +434,20 @@ void RenderWindow::Tick(float deltaTime)
     QVector3D AttemptedMovement;
     if (mCurrentInputs[Qt::Key_W]) {
         auto dir = mActiveCamera->Forward();
-        dir *= -1;
         AttemptedMovement += dir;
     }
     if (mCurrentInputs[Qt::Key_S]) {
         auto dir = mActiveCamera->Forward();
+        dir *= -1;
         AttemptedMovement += dir;
     }
     if (mCurrentInputs[Qt::Key_A]) {
         auto dir = mActiveCamera->Right();
+        dir *= -1;
         AttemptedMovement += dir;
     }
     if (mCurrentInputs[Qt::Key_D]) {
         auto dir = mActiveCamera->Right();
-        dir *= -1;
         AttemptedMovement += dir;
     }
     if (mCurrentInputs[Qt::Key_E]) {
@@ -445,9 +461,9 @@ void RenderWindow::Tick(float deltaTime)
 
     mLight->orbit(deltaTime);
 
-    AttemptedMovement *= deltaTime * 25;
-    if (mCurrentInputs[Qt::Key_Shift]) AttemptedMovement *= 2;
-    mActiveCamera->mVmatrix.translate(AttemptedMovement);
+    float moveSpeed = deltaTime * 50;
+    if (mCurrentInputs[Qt::Key_Shift]) moveSpeed *= 2;
+    mActiveCamera->Move(AttemptedMovement, moveSpeed);
 
     mCamera1.Tick(deltaTime);
 
