@@ -52,7 +52,7 @@ RenderWindow::RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow)
     }
 
     mRenderTimer = new QTimer(this);
-    mCamera2.SetPosition({43.5, -5.4, 5});
+
     xyz = new XYZ;
     regTriangulation = new RegularTriangulation("trysilfjellet.txt");
     mObjects.push_back(regTriangulation);
@@ -132,7 +132,7 @@ void RenderWindow::init()
     //and returns the Texture ID that OpenGL uses from Texture::id()
     mTexture[0] = new Texture();
     //mTexture[1] = new Texture("../VSIM22H/Assets/gress.bmp");
-    mTexture[1] = new Texture("../VSIM22H/Assets/hund.bmp");
+    mTexture[1] = new Texture("../VSIM22H/Assets/test2.bmp");
 
     //Set the textures loaded to a texture unit (also called a texture slot)
     glActiveTexture(GL_TEXTURE0);
@@ -148,6 +148,7 @@ void RenderWindow::init()
     mCamera2.init(pMatrixUniform0, vMatrixUniform0);
     mCamera2.perspective(60, (float)width()/(float)height(), 0.1, 1000.0);
 
+
     for (auto i = mObjects.begin(); i != mObjects.end(); i++)
     {
         (*i)->init(mMatrixUniform0);
@@ -155,7 +156,7 @@ void RenderWindow::init()
 
     mLight = new Light();
     mLight->init(2);
-    mLight->setOrbitPoint({250, 250, 200});
+    mLight->setOrbitPoint({250, 250, 400});
 
     xyz->init(0);
 
@@ -407,22 +408,18 @@ void RenderWindow::wheelEvent(QWheelEvent *event)
 }
 
 void RenderWindow::Setup() {
-    mCamera1.SetPosition({35, 35, 25});
+
+    mCamera2.SetPosition({0,0,150});
+    mCamera2.lookAt({250,250,0});
+
 }
 
-// Oppgave 5 og 6 ...
-void RenderWindow::Start()
+void RenderWindow::ResetCamera()
 {
-    mActiveCamera = &mCamera1;
-    mMainWindow->SetStartStopButtonText("Pause");
-}
+    mCamera2.SetPosition({0,0,150});
+    mCamera2.lookAt({250,250,0});
 
-void RenderWindow::Pause()
-{
-    mActiveCamera = &mCamera2;
-    mMainWindow->SetStartStopButtonText("Start");
 }
-// ...
 
 void RenderWindow::Tick(float deltaTime)
 {

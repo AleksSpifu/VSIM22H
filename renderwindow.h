@@ -42,6 +42,8 @@ public:
     void Start();
     void Pause();
 
+    void ResetCamera();
+
 private slots:
     void render();          //the actual render - function
 

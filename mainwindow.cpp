@@ -21,11 +21,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::SetStartStopButtonText(std::string newText)
-{
-    ui->startstopbutton->setText(newText.c_str());
-}
-
 void MainWindow::init()
 {
     //This will contain the setup of the OpenGL surface we will render into
@@ -80,41 +75,9 @@ void MainWindow::init()
     Logger::getInstance()->setMainWindow(this);;
 }
 
-////Example of a slot called from the button on the top of the program.
-//void MainWindow::on_rotationButton_toggled(bool checked)
-//{
-//    if(checked)
-//    {
-//        mRenderWindow->mRotate = true;
-//        ui->rotationButton->setText("Stop rotation");
-//    }
-//    else
-//    {
-//        mRenderWindow->mRotate = false;
-//        ui->rotationButton->setText("Start rotation");
-//    }
-//}
-
-
-// Oppgave 6:
-void MainWindow::on_startstopbutton_toggled(bool checked)
-{
-    if(checked)
-    {
-        mRenderWindow->Start();
-        ui->startstopbutton->setText("Pause");
-    }
-    else
-    {
-        mRenderWindow->Pause();
-        ui->startstopbutton->setText("Start");
-    }
-}
-
-// Oppgave 14 men ikke egentlig
 void MainWindow::on_resetbutton_toggled(bool checked)
 {
-    init();
+    mRenderWindow->ResetCamera();
 }
 
 //File menu Exit closes the program

@@ -56,6 +56,6 @@ void Light::orbit(float dt) {
     mPosition.translate(mOrbitPoint);
     mRotation.rotate(dt * 45, {0, 0, 1});
     mMatrix = mPosition * mRotation;
-    mMatrix.translate({50, 0, 0});
+    mMatrix.translate({250, 0, 0});
 
 }
