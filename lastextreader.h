@@ -24,6 +24,18 @@ struct PointCloud {
 struct Triangle {
     int indicies[3];
     int neighbours[3];
+
+    friend std::ostream& operator<< (std::ostream& os, const Las::Triangle& t) {
+      os << std::fixed;
+      os << t.indicies[0] << " " << t.indicies[1] << " " << t.indicies[2] << " ";
+      os << t.neighbours[0] << " " << t.neighbours[1] << " " << t.neighbours[2];
+      return os;
+    }
+    friend std::istream& operator>> (std::istream& is, Las::Triangle& t) {
+        is >> t.indicies[0] >> t.indicies[1] >> t.indicies[2];
+        is >> t.neighbours[0] >> t.neighbours[1] >> t.neighbours[2];
+      return is;
+    }
 };
 
 struct PointCloudMesh {
@@ -37,9 +49,15 @@ class LasTextReader
 public:
 
     static PointCloudMesh GenerateVerticesFromFile(std::string fileName, int resolution, float size = 10.f);
-    static void ReadFile(std::string fileName, PointCloud &out);
+
+    static bool ReadFromFile(std::string fileName, PointCloudMesh &ptcloudmesh);
+private:
+
     static double GetHeight(std::pair<int, float> averageHeights);
-    static void WriteToFile(std::string fileName, const std::vector<Vertex> &mVertices);
+    template<typename T>
+    static void WriteToFile(std::string fileName, const std::vector<T> &mVertices);
+    template<typename T>
+    static bool ReadVector(std::string fileName, std::vector<T> &vec);
 };
 
 }

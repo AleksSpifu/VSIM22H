@@ -6,57 +6,40 @@
 #include <vector>
 #include "vertex.h"
 
-
-
-
-void Las::LasTextReader::ReadFile(std::string fileName, PointCloud& out)
+template <typename T>
+bool Las::LasTextReader::ReadVector(std::string fileName, std::vector<T>& vec)
 {
     std::ifstream file;
     file.open("../VSIM22H/txt_files/"+fileName);
-
     if (file.is_open())
     {
-        std::cout << "file is open, reading" << std::endl;
-        double x,y,z;
-        file >> x >> y >> z;
-        out.minMax.xMax = x;
-        out.minMax.yMax = y;
-        out.minMax.xMin = x;
-        out.minMax.yMin = y;
-        out.minMax.points++;
-
-        while (!file.eof())
+        int x{0};
+        T input;
+        file >> x;
+        vec.reserve(x);
+        for (int i=0; i<x; i++)
         {
-             file >> x >> y >> z;
-             if (x > out.minMax.xMax) out.minMax.xMax = x;
-             else if (x < out.minMax.xMin) out.minMax.xMin = x;
-             if (y > out.minMax.yMax) out.minMax.yMax = y;
-             else if (y < out.minMax.yMin) out.minMax.yMin = y;
-             if (z < out.minMax.zMin) out.minMax.zMin = z;
-             else if (z > out.minMax.zMax) out.minMax.zMax = z;
-             out.minMax.points++;
+             file >> input;
+             vec.push_back(input);
         }
-
-        file.seekg(0, std::ios_base::beg);
-
-        std::cout << "finished reading file, putting points in out struct" << std::endl;
-        out.points.reserve(out.minMax.points);
-
-        while (!file.eof())
-        {
-            file >> x >> y >> z;
-            x = x - out.minMax.xMin;
-            y = y - out.minMax.yMin;
-            z = z - out.minMax.zMin;
-
-        }
-
         file.close();
-
     } else {
-        std::cout << "could not open file" << std::endl;
+        return false;
     }
+    return true;
+}
 
+bool Las::LasTextReader::ReadFromFile(std::string fileName, PointCloudMesh& ptcloudmesh)
+{
+    if (!ReadVector(fileName.substr(0, fileName.find(".txt")) + "-verts.txt", ptcloudmesh.vertices))
+    {
+        return false;
+    }
+    if (!ReadVector<Triangle>(fileName.substr(0, fileName.find(".txt")) + "-tris.txt", ptcloudmesh.indicesAndNeighbours))
+    {
+        return false;
+    }
+    return true;
 }
 
 double Las::LasTextReader::GetHeight(std::pair<int, float> averageHeights)
@@ -68,16 +51,17 @@ double Las::LasTextReader::GetHeight(std::pair<int, float> averageHeights)
     }
 }
 
-void Las::LasTextReader::WriteToFile(std::string fileName, const std::vector<Vertex>& mVertices)
+
+template <typename T> void Las::LasTextReader::WriteToFile(std::string fileName, const std::vector<T>& input)
 {
     std::ofstream file;
     file.open("../VSIM22H/txt_files/"+fileName);
     if(file.is_open())
     {
-        file << mVertices.size() << std::endl;
-        for(auto i = 0; i < mVertices.size(); i++)
+        file << input.size() << std::endl;
+        for(unsigned int i = 0; i < input.size(); i++)
         {
-            file << mVertices[i] << std::endl;
+            file << input[i] << std::endl;
         }
         file.close();
     }
@@ -179,23 +163,44 @@ Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fil
                 if (x == resolution-1 || y == resolution-1) {
                     continue;
                 }
+                int currentTriangleIndex = (resolution - 1) * y * 2 + (2 * x);
                 Triangle tri;
                 tri.indicies[0] = y*resolution+x;
                 tri.indicies[1] = y*resolution+x+1;
                 tri.indicies[2] = (y+1)*resolution+x;
 
-                tri.neighbours[0] = std::max((resolution-1)*y*2+1+2*x, -1);
-                tri.neighbours[1] = std::max((resolution-1)*y*2-1+2*x, -1);
-                tri.neighbours[2] = std::max((resolution-1)*(y-1)*2+1+2*x, -1);
+                tri.neighbours[0] = currentTriangleIndex + 1;
+                tri.neighbours[1] = currentTriangleIndex - 1;
+                tri.neighbours[2] = currentTriangleIndex - (2 * (resolution-1)) + 1;
+
+                currentTriangleIndex +=1;
 
                 Triangle tri2;
                 tri2.indicies[0] = (y+1)*resolution+x;
                 tri2.indicies[1] = y*resolution+x+1;
                 tri2.indicies[2] = (y+1)*resolution+x+1;
 
-                tri2.neighbours[0] = std::max((resolution-1)*y*2+2+2*x, -1);
-                tri2.neighbours[1] = std::max((resolution-1)*y*2-1+2*x, -1);
-                tri2.neighbours[2] = std::max((resolution-1)*y*2+2*x, -1);
+                tri2.neighbours[0] = currentTriangleIndex + 1;
+                tri2.neighbours[1] = currentTriangleIndex + ((resolution-1) * 2) - 1;
+                tri2.neighbours[2] = currentTriangleIndex - 1;
+
+                if (y == 0)
+                {
+                    tri.neighbours[2] = -1;
+                }
+                if (x == 0)
+                {
+                    tri.neighbours[1] = -1;
+                }
+                if (y == resolution-2)
+                {
+                    tri2.neighbours[1] = -1;
+                }
+                if (x == resolution-2)
+                {
+                    tri2.neighbours[0] = -1;
+                }
+
 
                 out.indicesAndNeighbours.push_back(tri);
                 out.indicesAndNeighbours.push_back(tri2);
@@ -204,7 +209,8 @@ Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fil
 
         file.close();
 
-        WriteToFile(fileName + "verts.txt", out.vertices);
+        WriteToFile<Vertex>(fileName.substr(0, fileName.find(".txt")) + "-verts.txt", out.vertices);
+        WriteToFile<Triangle>(fileName.substr(0, fileName.find(".txt")) + "-tris.txt", out.indicesAndNeighbours);
 
         std::cout << "returning" << std::endl;
 

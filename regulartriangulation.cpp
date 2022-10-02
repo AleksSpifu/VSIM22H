@@ -3,10 +3,14 @@
 
 RegularTriangulation::RegularTriangulation(std::string fileName)
 {
-    auto pointCloud = Las::LasTextReader::GenerateVerticesFromFile(fileName, 100, 50.f);
+    if (!Las::LasTextReader::ReadFromFile(fileName, pointCloud))
+    {
+        std::cout << "did not find finished files, generating..." << std::endl;
+        pointCloud = Las::LasTextReader::GenerateVerticesFromFile(fileName, 500, 500.f);
+    }
     mVertices = pointCloud.vertices;
     mIndices.reserve(pointCloud.indicesAndNeighbours.size() * 3);
-    for (int i = 0; i < pointCloud.indicesAndNeighbours.size(); i++) {
+    for (unsigned int i = 0; i < pointCloud.indicesAndNeighbours.size(); i++) {
         mIndices.push_back(pointCloud.indicesAndNeighbours[i].indicies[0]);
         mIndices.push_back(pointCloud.indicesAndNeighbours[i].indicies[1]);
         mIndices.push_back(pointCloud.indicesAndNeighbours[i].indicies[2]);

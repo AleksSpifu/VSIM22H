@@ -54,7 +54,7 @@ RenderWindow::RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow)
     mRenderTimer = new QTimer(this);
     mCamera2.SetPosition({43.5, -5.4, 5});
     xyz = new XYZ;
-    regTriangulation = new RegularTriangulation("vestlandet.txt");
+    regTriangulation = new RegularTriangulation("trysilfjellet.txt");
     mObjects.push_back(regTriangulation);
 
 
@@ -155,7 +155,7 @@ void RenderWindow::init()
 
     mLight = new Light();
     mLight->init(2);
-    mLight->setOrbitPoint({0, 0, 20});
+    mLight->setOrbitPoint({250, 250, 200});
 
     xyz->init(0);
 

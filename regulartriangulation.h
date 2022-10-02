@@ -2,6 +2,7 @@
 #define REGULARTRIANGULATION_H
 
 #include "visualobject.h"
+#include "lastextreader.h"
 
 class RegularTriangulation : public VisualObject
 {
@@ -11,6 +12,7 @@ public:
     void draw() override;
     std::vector<GLuint> mIndices;
     GLuint mIBO{0};
+    Las::PointCloudMesh pointCloud;
 };
 
 #endif // REGULARTRIANGULATION_H

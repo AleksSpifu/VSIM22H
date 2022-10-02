@@ -79,4 +79,5 @@ release/*
 *.aps
 *.h.cpp
 
-
+# store tekstfiler
+trysilfjellet.txt
