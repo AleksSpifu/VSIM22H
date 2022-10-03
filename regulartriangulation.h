@@ -13,6 +13,9 @@ public:
     std::vector<GLuint> mIndices;
     GLuint mIBO{0};
     Las::PointCloudMesh pointCloud;
+    int mResolution{0};
+    float mSize{0.f};
+    std::vector<Vertex> MakeHeightLines(float heightInterval);
 };
 
 #endif // REGULARTRIANGULATION_H

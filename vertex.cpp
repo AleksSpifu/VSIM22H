@@ -32,6 +32,11 @@ std::string& operator>> (std::string& is, Vertex& v) {
     return is;
 }
 
+QVector3D Vertex::GetXYZ()
+{
+    return QVector3D{m_xyz[0], m_xyz[1], m_xyz[2]};
+}
+
 Vertex::Vertex()
 {
 

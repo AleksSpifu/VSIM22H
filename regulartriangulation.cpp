@@ -3,10 +3,12 @@
 
 RegularTriangulation::RegularTriangulation(std::string fileName)
 {
+    mResolution = 500;
+    mSize = 500.f;
     if (!Las::LasTextReader::ReadFromFile(fileName, pointCloud))
     {
         std::cout << "did not find finished files, generating..." << std::endl;
-        pointCloud = Las::LasTextReader::GenerateVerticesFromFile(fileName, 500, 500.f);
+        pointCloud = Las::LasTextReader::GenerateVerticesFromFile(fileName, mResolution, mSize);
     }
     mVertices = pointCloud.vertices;
     mIndices.reserve(pointCloud.indicesAndNeighbours.size() * 3);
@@ -82,3 +84,78 @@ void RegularTriangulation::draw()
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIBO);
     glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, reinterpret_cast<const void*>(0));//mVertices.size());
 }
+
+std::vector<Vertex> RegularTriangulation::MakeHeightLines(float heightInterval)
+{
+    // finn maks høyde
+    // finn ut hvor mange høydelinjer som skal tegnes
+    // for hver høyde:
+        // finn en eller annen trekant med riktig høyde
+        // lagre den første sin posisjon, husk på den
+        // sjekk om det er 1 eller 2 punkter som er høyere enn høydelinjen, avhengig av det blir det annerledes
+        // finn det første punktet til høydelinjen på trekanten
+        // bruk naboinfo til å finne neste trekant som har riktig høyde
+        // når vi kommer til første trekanten, altså har tatt hele runden, går vi til neste høydelinje og gjør dette på nytt
+    std::vector<Vertex> vertices;
+    for (auto t : pointCloud.indicesAndNeighbours) {
+        QVector3D p1 = mVertices[t.indicies[0]].GetXYZ();
+        QVector3D p2 = mVertices[t.indicies[1]].GetXYZ();
+        QVector3D p3 = mVertices[t.indicies[2]].GetXYZ();
+    }
+
+    return vertices;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

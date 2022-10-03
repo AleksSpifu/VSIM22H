@@ -41,6 +41,7 @@ struct Triangle {
 struct PointCloudMesh {
     std::vector<Vertex> vertices;
     std::vector<Triangle> indicesAndNeighbours;
+    float scale;
 };
 
 

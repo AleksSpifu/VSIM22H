@@ -39,6 +39,12 @@ bool Las::LasTextReader::ReadFromFile(std::string fileName, PointCloudMesh& ptcl
     {
         return false;
     }
+    std::vector<float> floatvec;
+    if (!ReadVector<float>(fileName.substr(0, fileName.find(".txt")) + "-scale.txt", floatvec))
+    {
+        return false;
+    }
+    ptcloudmesh.scale = floatvec.at(0);
     return true;
 }
 
@@ -138,6 +144,7 @@ Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fil
         float scaleDifference = size / span;
         float heightSpan = pointCloud.minMax.zMax - pointCloud.minMax.zMin;
         std::cout << "scaledifference " << scaleDifference << std::endl;
+        out.scale = scaleDifference;
 
         std::cout << "making mesh" << std::endl;
 
@@ -211,6 +218,7 @@ Las::PointCloudMesh Las::LasTextReader::GenerateVerticesFromFile(std::string fil
 
         WriteToFile<Vertex>(fileName.substr(0, fileName.find(".txt")) + "-verts.txt", out.vertices);
         WriteToFile<Triangle>(fileName.substr(0, fileName.find(".txt")) + "-tris.txt", out.indicesAndNeighbours);
+        WriteToFile<float>(fileName.substr(0, fileName.find(".txt")) + "-scale.txt", std::vector<float>{out.scale});
 
         std::cout << "returning" << std::endl;
 

@@ -20,6 +20,7 @@ private:
 
 public:
    // Constructors
+   QVector3D GetXYZ();
    Vertex();
    Vertex(float x, float y, float z, float r, float g, float b);
    Vertex(QVector3D xyz, float r, float g, float b);
