@@ -7,6 +7,7 @@ TARGET      = 3D-programmering
 
 SOURCES += main.cpp \
     camera.cpp \
+    heightlines.cpp \
     lastextreader.cpp \
     light.cpp \
     logger.cpp \
@@ -23,6 +24,7 @@ SOURCES += main.cpp \
     xyz.cpp
 
 HEADERS += \
+    heightlines.h \
     lastextreader.h \
     light.h \
     camera.h \

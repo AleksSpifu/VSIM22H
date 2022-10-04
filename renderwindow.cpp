@@ -19,7 +19,8 @@
 #include "xyz.h"
 #include "texture.h"
 #include "light.h"
-#include "LasTextReader.h"
+#include "lastextreader.h"
+#include "heightlines.h"
 #include "regulartriangulation.h"
 
 // hei
@@ -57,6 +58,10 @@ RenderWindow::RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow)
     regTriangulation = new RegularTriangulation("vestlandet_stor.txt");
     mObjects.push_back(regTriangulation);
 
+    heightLines = new HeightLines;
+    heightLines->setVertices(regTriangulation->MakeHeightLines(5));
+    //mObjects.push_back(hl);
+
 
 }
 
@@ -64,6 +69,7 @@ RenderWindow::~RenderWindow()
 {
     glDeleteVertexArrays( 1, &mVAO );
     glDeleteBuffers( 1, &mVBO );
+    delete heightLines;
     for (auto p : mObjects) {
         delete p;
     }
@@ -158,6 +164,8 @@ void RenderWindow::init()
     mLight->init(2);
     mLight->setOrbitPoint({250, 250, 400});
 
+    heightLines->init(0);
+
     xyz->init(0);
 
     glBindVertexArray(0);
@@ -189,6 +197,9 @@ void RenderWindow::render()
 
     glUniformMatrix4fv(mMatrixUniform0, 1, GL_FALSE, mLight->mMatrix.constData());
     mLight->draw();
+
+    glUniformMatrix4fv(mMatrixUniform0, 1, GL_FALSE, heightLines->mMatrix.constData());
+    heightLines->draw();
 
     glUseProgram(mShaderProgram[2]->getProgram());
     mActiveCamera->update(pMatrixUniform2, vMatrixUniform2);

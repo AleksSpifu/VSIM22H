@@ -141,6 +141,7 @@ private:
     Camera mCamera2;
     Camera* mActiveCamera{nullptr};
     class Light *mLight{nullptr};
+    class HeightLines* heightLines{nullptr};
 
 };
 
