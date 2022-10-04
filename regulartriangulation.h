@@ -16,6 +16,9 @@ public:
     int mResolution{0};
     float mSize{0.f};
     std::vector<Vertex> MakeHeightLines(float heightInterval);
+private:
+    bool CheckTriangleHeight(QVector3D p1, QVector3D p2, QVector3D p3, float h);
+    bool CheckTriangleHeight(int triIndex, float h);
 };
 
 #endif // REGULARTRIANGULATION_H

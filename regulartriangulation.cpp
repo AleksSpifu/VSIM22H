@@ -85,23 +85,96 @@ void RegularTriangulation::draw()
     glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, reinterpret_cast<const void*>(0));//mVertices.size());
 }
 
+bool RegularTriangulation::CheckTriangleHeight(QVector3D p1, QVector3D p2, QVector3D p3, float h)
+{
+    return !((p1.z() < h) == (p2.z() < h) == (p3.z() < h));
+}
+
+bool RegularTriangulation::CheckTriangleHeight(int triIndex, float h)
+{
+    QVector3D p1 = mVertices[pointCloud.indicesAndNeighbours[triIndex].indicies[0]].GetXYZ();
+    QVector3D p2 = mVertices[pointCloud.indicesAndNeighbours[triIndex].indicies[1]].GetXYZ();
+    QVector3D p3 = mVertices[pointCloud.indicesAndNeighbours[triIndex].indicies[2]].GetXYZ();
+    return !((p1.z() < h) == (p2.z() < h) == (p3.z() < h));
+}
+
 std::vector<Vertex> RegularTriangulation::MakeHeightLines(float heightInterval)
 {
+    std::vector<Vertex> vertices;
     // finn maks høyde
+    float maxHeight = 0;
+    for (auto v : mVertices) {
+        maxHeight = std::max(maxHeight, v.GetXYZ().z());
+    }
     // finn ut hvor mange høydelinjer som skal tegnes
+    int linesToDraw = maxHeight / heightInterval;
+    std::unordered_map<int, bool> drawnTriangles;
     // for hver høyde:
+    for (int i = 1; i <= linesToDraw; i++) {
+        float h = heightInterval * i;
         // finn en eller annen trekant med riktig høyde
-        // lagre den første sin posisjon, husk på den
+        Las::Triangle triangle;
+        int firstTriangle;
+        for (int ti = 0; ti < pointCloud.indicesAndNeighbours.size(); ti++) {
+            auto t = pointCloud.indicesAndNeighbours[ti];
+            QVector3D p1 = mVertices[t.indicies[0]].GetXYZ();
+            QVector3D p2 = mVertices[t.indicies[1]].GetXYZ();
+            QVector3D p3 = mVertices[t.indicies[2]].GetXYZ();
+            bool isLineThroughTriangle = CheckTriangleHeight(p1, p2, p3, h);
+            if (isLineThroughTriangle) {
+                triangle = t;
+                firstTriangle = ti;
+                break;
+            }
+        }
+
         // sjekk om det er 1 eller 2 punkter som er høyere enn høydelinjen, avhengig av det blir det annerledes
+
+        int singleIndex;
+        for (int j = 0; j < 3; j++) {
+            if ((mVertices[triangle.indicies[j]].GetXYZ().z() > h) &&
+                    (
+                        (mVertices[triangle.indicies[(j+1)%3]].GetXYZ().z() < h) ==
+                        (mVertices[triangle.indicies[(j+2)%3]].GetXYZ().z() < h))
+                    ) {
+                singleIndex = j;
+            }
+        }
+        drawnTriangles[firstTriangle] = true;
+        QVector3D p1 = mVertices[triangle.indicies[singleIndex]].GetXYZ();
+        QVector3D p2 = mVertices[triangle.indicies[(singleIndex + 1) % 3]].GetXYZ();
+        QVector3D p3 = mVertices[triangle.indicies[(singleIndex + 2) % 3]].GetXYZ();
+        float percentageOfHeight = (h-p2.z()) / (p1.z()-p2.z());
+        Vertex v1{p2+(p1-p2)*percentageOfHeight, {1,1,1}};
+        percentageOfHeight = (h-p3.z()) / (p1.z()-p3.z());
+        Vertex v2{p3+(p1-p3)*percentageOfHeight, {1,1,1}};
+        vertices.push_back(v1);
+        vertices.push_back(v2);
+
+        int next;
+        if (CheckTriangleHeight(pointCloud.indicesAndNeighbours[firstTriangle].neighbours[0], h))
+        {
+            next = pointCloud.indicesAndNeighbours[firstTriangle].neighbours[0];
+        }
+        else if (CheckTriangleHeight(pointCloud.indicesAndNeighbours[firstTriangle].neighbours[1], h))
+        {
+            next = pointCloud.indicesAndNeighbours[firstTriangle].neighbours[1];
+        }
+        else if (CheckTriangleHeight(pointCloud.indicesAndNeighbours[firstTriangle].neighbours[2], h))
+        {
+            next = pointCloud.indicesAndNeighbours[firstTriangle].neighbours[2];
+        }
+        while (drawnTriangles[next] == false) {
+
+        }
+
+
         // finn det første punktet til høydelinjen på trekanten
+
         // bruk naboinfo til å finne neste trekant som har riktig høyde
         // når vi kommer til første trekanten, altså har tatt hele runden, går vi til neste høydelinje og gjør dette på nytt
-    std::vector<Vertex> vertices;
-    for (auto t : pointCloud.indicesAndNeighbours) {
-        QVector3D p1 = mVertices[t.indicies[0]].GetXYZ();
-        QVector3D p2 = mVertices[t.indicies[1]].GetXYZ();
-        QVector3D p3 = mVertices[t.indicies[2]].GetXYZ();
     }
+
 
     return vertices;
 }
