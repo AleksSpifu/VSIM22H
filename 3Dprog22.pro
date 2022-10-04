@@ -13,6 +13,7 @@ SOURCES += main.cpp \
     logger.cpp \
     mainwindow.cpp \
     octahedronball.cpp \
+    raindrop.cpp \
     regulartriangulation.cpp \
     renderwindow.cpp \
     shader.cpp \
@@ -31,6 +32,7 @@ HEADERS += \
     logger.h \
     mainwindow.h \
     octahedronball.h \
+    raindrop.h \
     regulartriangulation.h \
     renderwindow.h \
     shader.h \

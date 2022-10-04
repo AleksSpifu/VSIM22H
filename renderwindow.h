@@ -142,6 +142,7 @@ private:
     Camera* mActiveCamera{nullptr};
     class Light *mLight{nullptr};
     class HeightLines* heightLines{nullptr};
+    std::vector<class RainDrop*> mRaindrops;
 
 };
 

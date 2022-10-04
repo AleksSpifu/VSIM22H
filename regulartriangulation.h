@@ -15,6 +15,7 @@ public:
     Las::PointCloudMesh pointCloud;
     int mResolution{0};
     float mSize{0.f};
+    static inline float scale{1};
     std::vector<Vertex> MakeHeightLines(float heightInterval);
 private:
     bool CheckTriangleHeight(QVector3D p1, QVector3D p2, QVector3D p3, float h);

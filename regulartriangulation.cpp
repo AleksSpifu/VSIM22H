@@ -11,6 +11,7 @@ RegularTriangulation::RegularTriangulation(std::string fileName)
         std::cout << "did not find finished files, generating..." << std::endl;
         pointCloud = Las::LasTextReader::GenerateVerticesFromFile(fileName, mResolution, mSize);
     }
+    scale = pointCloud.scale;
     mVertices = pointCloud.vertices;
     mIndices.reserve(pointCloud.indicesAndNeighbours.size() * 3);
     for (unsigned int i = 0; i < pointCloud.indicesAndNeighbours.size(); i++) {

@@ -82,7 +82,7 @@ std::string VisualObject::Name()
 
 QVector3D VisualObject::getPosition()
 {
-    auto pos = mPosition.column(3);
+    auto pos = mMatrix.column(3);
     return QVector3D{pos.x(), pos.y(), pos.z()};
 }
 

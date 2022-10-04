@@ -22,6 +22,7 @@
 #include "lastextreader.h"
 #include "heightlines.h"
 #include "regulartriangulation.h"
+#include "raindrop.h"
 
 // hei
 //~~//
@@ -61,6 +62,8 @@ RenderWindow::RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow)
     heightLines = new HeightLines;
     heightLines->setVertices(regTriangulation->MakeHeightLines(5));
     //mObjects.push_back(hl);
+
+    mRaindrops.push_back(new RainDrop({0,0,100}, regTriangulation->scale));
 
 
 }
@@ -159,6 +162,10 @@ void RenderWindow::init()
     {
         (*i)->init(mMatrixUniform0);
     }
+    for (auto i = mRaindrops.begin(); i != mRaindrops.end(); i++)
+    {
+        (*i)->init(0);
+    }
 
     mLight = new Light();
     mLight->init(2);
@@ -200,6 +207,12 @@ void RenderWindow::render()
 
     glUniformMatrix4fv(mMatrixUniform0, 1, GL_FALSE, heightLines->mMatrix.constData());
     heightLines->draw();
+
+    for (auto i = mRaindrops.begin(); i != mRaindrops.end(); i++)
+    {
+        glUniformMatrix4fv(mMatrixUniform0, 1, GL_FALSE, (*i)->mMatrix.constData());
+        (*i)->draw();
+    }
 
     glUseProgram(mShaderProgram[2]->getProgram());
     mActiveCamera->update(pMatrixUniform2, vMatrixUniform2);
@@ -437,6 +450,11 @@ void RenderWindow::Tick(float deltaTime)
     for (auto p : mObjects) {
         //p->Tick(deltaTime);
 
+    }
+
+    for (auto i = mRaindrops.begin(); i != mRaindrops.end(); i++)
+    {
+        (*i)->Tick(deltaTime);
     }
 
     QVector3D AttemptedMovement;
