@@ -19,8 +19,8 @@ public:
     void MakeRaindrop();
     void DeleteRainDrop(RainDrop* rd);
     int mRainAmount{0};
-private:
     unsigned long long amountOfRainSpawned{0};
+private:
     float mWorldScale{1};
     float mTimer{0.f};
     float mScale{0.f};

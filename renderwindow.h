@@ -48,6 +48,7 @@ public:
 
     bool DrawHeightLines{true};
 
+    QVector3D ScreenToWorld(float x, float y);
 private slots:
     void render();          //the actual render - function
 

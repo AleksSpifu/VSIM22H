@@ -57,7 +57,7 @@ RenderWindow::RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow)
     mRenderTimer = new QTimer(this);
 
     xyz = new XYZ;
-    regTriangulation = new RegularTriangulation("trysilfjellet.txt");
+    regTriangulation = new RegularTriangulation("vestlandet_stor.txt");
     mObjects.push_back(regTriangulation);
 
     heightLines = new HeightLines;
@@ -387,6 +387,12 @@ void RenderWindow::mousePressEvent(QMouseEvent *event)
         setCursor(Qt::BlankCursor);
         mMouseHeldPosition = event->pos();
     }
+    if (event->button() == Qt::LeftButton) {
+        QVector3D pos = ScreenToWorld(event->pos().x(), event->pos().y());
+        auto rain = new RainDrop(pos, regTriangulation->pointCloud.scale, regTriangulation, mCloud, mCloud->amountOfRainSpawned, 5);
+        rain->init(0);
+        mCloud->mRainDrops.push_back(rain);
+    }
 }
 
 void RenderWindow::mouseReleaseEvent(QMouseEvent *event)
@@ -400,6 +406,47 @@ void RenderWindow::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
+QVector3D RenderWindow::ScreenToWorld(float x, float y)
+{
+    float halfScreenWidth = width() / 2.f;
+    float halfScreenHeight = height() / 2.f;
+
+    QMatrix4x4 mat = (mActiveCamera->mPmatrix * mActiveCamera->mVmatrix).inverted();
+
+    QVector4D n((x - halfScreenWidth) / halfScreenWidth, -1 * (y - halfScreenHeight) / halfScreenHeight, -1, 1);
+    QVector4D f((x - halfScreenWidth) / halfScreenWidth, -1 * (y - halfScreenHeight) / halfScreenHeight, 1, 1);
+
+    QVector4D nearResult = mat.map(n);
+    QVector4D farResult = mat.map(f);
+
+    nearResult /= nearResult.w();
+    farResult /= farResult.w();
+
+    QVector3D dir = (farResult-nearResult).toVector3D();
+
+    dir.normalize();
+
+    QVector3D out = mActiveCamera->GetPosition();
+
+    for (int i = 0; i < 1500; i++) {
+        out += dir * 1;
+        if (out.x() < 500.f && out.y() < 500.f && out.x() > 0.f && out.y() > 0.f) {
+
+            Las::Triangle tri = regTriangulation->GetTriangle(out.x(), out.y());
+
+            QVector3D p1 = regTriangulation->pointCloud.vertices[tri.indicies[0]].GetXYZ();
+            QVector3D p2 = regTriangulation->pointCloud.vertices[tri.indicies[1]].GetXYZ();
+            QVector3D p3 = regTriangulation->pointCloud.vertices[tri.indicies[2]].GetXYZ();
+            QVector3D Baryc = regTriangulation->Barycentric(out, p1, p2, p3);
+            float groundHeight = regTriangulation->GetBarycentricHeight(Baryc, p1, p2, p3);
+            if (groundHeight > out.z()) break;
+        }
+    }
+
+    return out;
+
+}
+
 void RenderWindow::mouseMoveEvent(QMouseEvent *event)
 {
     static float previousX = event->position().x();
@@ -407,6 +454,9 @@ void RenderWindow::mouseMoveEvent(QMouseEvent *event)
 
     float newX = event->position().x();
     float newY = event->position().y();
+
+    ScreenToWorld(newX, newY);
+
 
     float diffX = previousX - newX;
     float diffY = previousY - newY;

@@ -31,8 +31,6 @@ void Cloud::MakeRaindrop()
     RainDrop* rainDrop = new RainDrop({x, y, mScale}, mWorldScale, mGround, this, amountOfRainSpawned);
     rainDrop->init(0);
     mRainDrops.push_back(rainDrop);
-    mRainTrails.push_back(new RainTrails());
-    amountOfRainSpawned++;
 }
 
 void Cloud::DeleteRainDrop(RainDrop *rd)

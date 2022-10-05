@@ -14,7 +14,6 @@ private:
     GLint  mVmatrixUniform;
     QVector3D mEye;
 
-    QMatrix4x4 mPmatrix{};
 
     VisualObject* mTarget{nullptr};
     float mDistanceToTarget{5.f};
@@ -26,6 +25,8 @@ private:
     QVector3D oldTargetPos;
     float pitch{0.f}, yaw{0.f};
 public:
+
+    QMatrix4x4 mPmatrix{};
      QMatrix4x4 mVmatrix{};
     QVector3D GetPosition();
     Camera();

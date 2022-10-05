@@ -7,7 +7,7 @@
 class RainDrop : public VisualObject
 {
 public:
-    RainDrop(QVector3D startPos, float worldScale, RegularTriangulation* ground, class Cloud* cloud, unsigned long long index);
+    RainDrop(QVector3D startPos, float worldScale, RegularTriangulation* ground, class Cloud* cloud, unsigned long long index, float scale=1);
     void draw() override;
     void init(GLint matrixUniform) override;
     void Tick(float deltaTime) override;

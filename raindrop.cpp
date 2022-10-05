@@ -2,13 +2,17 @@
 #include "cloud.h"
 #include "octahedronball.h"
 
-RainDrop::RainDrop(QVector3D startPos, float worldScale, RegularTriangulation* ground, Cloud* cloud, unsigned long long index)
+RainDrop::RainDrop(QVector3D startPos, float worldScale, RegularTriangulation* ground, Cloud* cloud, unsigned long long index, float scale)
 {
+    cloud->mRainTrails.push_back(new RainTrails());
+    cloud->amountOfRainSpawned++;
+    mScale = scale;
     mIndex = index;
     mCloud = cloud;
     mGround = ground;
     mWorldScale = worldScale;
     mAcceleration *= mWorldScale;
+    mAcceleration *= (scale * scale * scale);
     mMatrix.translate(startPos);
     mVertices = OctahedronBall::oktaederUnitBall(2, {0,0,1}, mScale);
 }
