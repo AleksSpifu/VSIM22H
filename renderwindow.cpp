@@ -219,6 +219,12 @@ void RenderWindow::render()
         (*i)->draw();
     }
 
+    for (auto i = mCloud->mRainTrails.begin(); i != mCloud->mRainTrails.end(); i++)
+    {
+        glUniformMatrix4fv(mMatrixUniform0, 1, GL_FALSE, (*i)->mMatrix.constData());
+        (*i)->draw();
+    }
+
     glUniformMatrix4fv(mMatrixUniform0, 1, GL_FALSE, mCloud->mMatrix.constData());
     mCloud->draw();
 

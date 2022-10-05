@@ -16,8 +16,10 @@ public:
 private:
     unsigned long long mIndex{0};
     float mTimeAlive{0};
+    float mLastReportTime{0.f};
     float mTimeToKill{60.f};
     bool mIsOnGround{false};
+    bool mHasReachedGround{false};
     class Cloud* mCloud;
     float mFriction{0.5};
     float mScale{0.5};

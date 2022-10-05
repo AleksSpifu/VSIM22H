@@ -51,6 +51,7 @@ void RainTrails::init(GLint matrixUniform)
 
 void RainTrails::draw()
 {
+    if (mVertices.size() == 0) return;
     glBindVertexArray( mVAO );
     glDrawArrays(GL_LINES, 0, mVertices.size());
 }
@@ -58,4 +59,5 @@ void RainTrails::draw()
 void RainTrails::ReportLocation(QVector3D location)
 {
     mVertices.push_back(Vertex(location, {0.5,0.5,1}));
+    init(0);
 }

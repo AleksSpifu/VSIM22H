@@ -3,6 +3,7 @@
 
 #include "visualobject.h"
 #include "raindrop.h"
+#include "raintrails.h"
 
 class Cloud : public VisualObject
 {
@@ -12,6 +13,7 @@ public:
     void init(GLint matrixUniform) override;
     void Tick(float deltaTime) override;
     std::vector<RainDrop*> mRainDrops;
+    std::vector<RainTrails*> mRainTrails;
     RegularTriangulation* mGround;
     ~Cloud();
     void MakeRaindrop();

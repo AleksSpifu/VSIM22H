@@ -117,10 +117,18 @@ void RainDrop::Tick(float deltaTime)
             mVelocity = mVelocity * 0.9;
         }
         mIsOnGround = true;
+        mHasReachedGround = true;
 
         QVector3D newVelocity = mVelocity * deltaTime;
 
         mMatrix.translate(newVelocity);
+    }
+
+    if (mHasReachedGround) {
+        if (mTimeAlive > mLastReportTime + 0.5) {
+            mLastReportTime = mTimeAlive;
+            mCloud->mRainTrails[mIndex]->ReportLocation(getPosition());
+        }
     }
 
 
