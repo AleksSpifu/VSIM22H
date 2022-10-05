@@ -21,6 +21,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::on_horizontalSlider_sliderMoved(int position)
+{
+    mRenderWindow->TellCloudRainAmount(position);
+}
+
 void MainWindow::init()
 {
     //This will contain the setup of the OpenGL surface we will render into
@@ -75,9 +80,16 @@ void MainWindow::init()
     Logger::getInstance()->setMainWindow(this);;
 }
 
+
+
 void MainWindow::on_resetbutton_toggled(bool checked)
 {
     mRenderWindow->ResetCamera();
+}
+
+void MainWindow::on_showHideHeightLines_toggled(bool checked)
+{
+    mRenderWindow->DrawHeightLines = checked;
 }
 
 //File menu Exit closes the program

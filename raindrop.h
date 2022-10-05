@@ -2,15 +2,25 @@
 #define RAINDROP_H
 
 #include "visualobject.h"
+#include "regulartriangulation.h"
 
 class RainDrop : public VisualObject
 {
 public:
-    RainDrop(QVector3D startPos, float worldScale);
+    RainDrop(QVector3D startPos, float worldScale, RegularTriangulation* ground, class Cloud* cloud, unsigned long long index);
     void draw() override;
-    void init(GLint matrixUniform) override ;
+    void init(GLint matrixUniform) override;
     void Tick(float deltaTime) override;
+    RegularTriangulation* mGround;
+    bool EvaluateForDeletion();
 private:
+    unsigned long long mIndex{0};
+    float mTimeAlive{0};
+    float mTimeToKill{60.f};
+    bool mIsOnGround{false};
+    class Cloud* mCloud;
+    float mFriction{0.5};
+    float mScale{0.5};
     static inline float mWorldScale{1};
     QVector3D mAcceleration{0, 0, -9.81};
     QVector3D mVelocity{0, 0, 0};

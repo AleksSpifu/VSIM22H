@@ -1,12 +1,16 @@
 #include "raindrop.h"
+#include "cloud.h"
 #include "octahedronball.h"
 
-RainDrop::RainDrop(QVector3D startPos, float worldScale)
+RainDrop::RainDrop(QVector3D startPos, float worldScale, RegularTriangulation* ground, Cloud* cloud, unsigned long long index)
 {
+    mIndex = index;
+    mCloud = cloud;
+    mGround = ground;
     mWorldScale = worldScale;
     mAcceleration *= mWorldScale;
     mMatrix.translate(startPos);
-    mVertices = OctahedronBall::oktaederUnitBall(2, {0,0,1}, 1);
+    mVertices = OctahedronBall::oktaederUnitBall(2, {0,0,1}, mScale);
 }
 
 
@@ -27,7 +31,7 @@ void RainDrop::init(GLint matrixUniform)
                 mVertices.size() * sizeof( Vertex ),      //how big buffer do we need
                 mVertices.data(),                         //the actual vertices
                 GL_STATIC_DRAW                            //should the buffer be updated on the GPU
-            );
+                );
 
     glBindBuffer(GL_ARRAY_BUFFER, mVBO);
     glVertexAttribPointer(
@@ -37,7 +41,7 @@ void RainDrop::init(GLint matrixUniform)
                 GL_FALSE,
                 sizeof(Vertex),
                 reinterpret_cast<GLvoid*>(0)
-            );                              // array buffer offset
+                );                              // array buffer offset
     glEnableVertexAttribArray(0);
 
     glVertexAttribPointer(
@@ -54,22 +58,73 @@ void RainDrop::init(GLint matrixUniform)
 
 }
 
-void RainDrop::Tick(float deltaTime)
+bool RainDrop::EvaluateForDeletion()
 {
-    if (getPosition().z() < 0) {
-        mMatrix.translate({0,0,200});
-        mVelocity = {0,0,0};
+
+    bool shouldSelfDestruct{false};
+    QVector3D myPos = getPosition();
+    if (mTimeAlive > mTimeToKill) {
+        shouldSelfDestruct = true;
+    } else if (myPos.x() < 0 || myPos.y() < 0) {
+        shouldSelfDestruct = true;
+    } else if (myPos.x() > mGround->mSize || myPos.y() > mGround->mSize) {
+        shouldSelfDestruct = true;
+    } else if (myPos.z() < 0) {
+        shouldSelfDestruct = true;
     }
 
-    // få tak i normalen og høyden på bakken
-    mVelocity = mVelocity + (mAcceleration * deltaTime);
+    if (shouldSelfDestruct) {
+        mCloud->DeleteRainDrop(this);
+        return true;
+    }
+    return false;
+}
 
-    //slide along normal
-    //friksjon
+void RainDrop::Tick(float deltaTime)
+{
+    mTimeAlive += deltaTime;
+    QVector3D myPos = getPosition();
+    Las::Triangle tri = mGround->GetTriangle(myPos.x(), myPos.y());
 
-    QVector3D newVelocity = mVelocity * deltaTime;
+    QVector3D p1 = mGround->pointCloud.vertices[tri.indicies[0]].GetXYZ();
+    QVector3D p2 = mGround->pointCloud.vertices[tri.indicies[1]].GetXYZ();
+    QVector3D p3 = mGround->pointCloud.vertices[tri.indicies[2]].GetXYZ();
+    QVector3D Baryc = Barycentric(myPos, p1, p2, p3);
+    float groundHeight = GetBarycentricHeight(Baryc, p1, p2, p3);
 
-    mMatrix.translate(newVelocity);
+    if (myPos.z() - mScale - 0.1f > groundHeight) {
+        mVelocity = mVelocity + (mAcceleration * deltaTime);
+
+        QVector3D newVelocity = mVelocity * deltaTime;
+
+        mMatrix.translate(newVelocity);
+        mIsOnGround = false;
+    } else {
+        float difference = groundHeight - (myPos.z() - mScale);
+        if (difference > 0) {
+            mMatrix.translate(0,0,difference);
+        }
+
+        mVelocity = mVelocity + (mAcceleration * deltaTime);
+
+        QVector3D groundNormal = QVector3D::crossProduct(p2-p1, p3-p1);
+        groundNormal.normalize();
+
+        QVector3D slideAlongNormal = mVelocity - 2 * (QVector3D::dotProduct(mVelocity, groundNormal)) * groundNormal;
+        mVelocity = mVelocity + slideAlongNormal;
+        mVelocity = mVelocity * mFriction;
+        if (!mIsOnGround) {
+            mVelocity = mVelocity * 0.9;
+        }
+        mIsOnGround = true;
+
+        QVector3D newVelocity = mVelocity * deltaTime;
+
+        mMatrix.translate(newVelocity);
+    }
+
+
+
 }
 
 void RainDrop::draw()

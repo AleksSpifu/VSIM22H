@@ -22,6 +22,41 @@ RegularTriangulation::RegularTriangulation(std::string fileName)
     std::cout << mIndices.size() << std::endl;
 }
 
+Las::Triangle RegularTriangulation::GetTriangle(float x, float y)
+{
+    float sizeOfSquares = mSize / mResolution;
+    int ix, iy;
+    ix = x / sizeOfSquares;
+    iy = y / sizeOfSquares;
+    if (ix >= mResolution-1) {
+        ix = mResolution-2;
+    }
+    if (iy >= mResolution-1) {
+        iy = mResolution-2;
+    }
+
+    Las::Triangle tri;
+    tri.indicies[0] = iy*mResolution+ix;
+    tri.indicies[1] = iy*mResolution+ix+1;
+    tri.indicies[2] = (iy+1)*mResolution+ix;
+
+    QVector3D p1 = mVertices[tri.indicies[0]].GetXYZ();
+    QVector3D p2 = mVertices[tri.indicies[1]].GetXYZ();
+    QVector3D p3 = mVertices[tri.indicies[2]].GetXYZ();
+    auto baryc = Barycentric({x,y,0}, p1, p2, p3);
+    if (isOverlappingTriangle(baryc, p1, p2, p3))
+    {
+        return tri;
+    }
+
+    Las::Triangle tri2;
+    tri2.indicies[0] = (iy+1)*mResolution+ix;
+    tri2.indicies[1] = iy*mResolution+ix+1;
+    tri2.indicies[2] = (iy+1)*mResolution+ix+1;
+
+    return tri2;
+}
+
 void RegularTriangulation::init(GLint matrixUniform)
 {
     mMatrixUniform = matrixUniform;
@@ -126,6 +161,7 @@ std::vector<Vertex> RegularTriangulation::MakeHeightLines(float heightInterval)
     for (auto v : mVertices) {
         maxHeight = std::max(maxHeight, v.GetXYZ().z());
     }
+    heightInterval *= pointCloud.scale;
     // finn ut hvor mange høydelinjer som skal tegnes
     int linesToDraw = maxHeight / heightInterval;
     std::unordered_map<int, bool> drawnTriangles;

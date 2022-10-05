@@ -44,6 +44,10 @@ public:
 
     void ResetCamera();
 
+    void TellCloudRainAmount(int amount);
+
+    bool DrawHeightLines{true};
+
 private slots:
     void render();          //the actual render - function
 
@@ -142,7 +146,7 @@ private:
     Camera* mActiveCamera{nullptr};
     class Light *mLight{nullptr};
     class HeightLines* heightLines{nullptr};
-    std::vector<class RainDrop*> mRaindrops;
+    class Cloud* mCloud{nullptr};
 
 };
 

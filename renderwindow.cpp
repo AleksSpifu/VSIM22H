@@ -23,6 +23,7 @@
 #include "heightlines.h"
 #include "regulartriangulation.h"
 #include "raindrop.h"
+#include "cloud.h"
 
 // hei
 //~~//
@@ -56,14 +57,16 @@ RenderWindow::RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow)
     mRenderTimer = new QTimer(this);
 
     xyz = new XYZ;
-    regTriangulation = new RegularTriangulation("vestlandet_stor.txt");
+    regTriangulation = new RegularTriangulation("trysilfjellet.txt");
     mObjects.push_back(regTriangulation);
 
     heightLines = new HeightLines;
-    heightLines->setVertices(regTriangulation->MakeHeightLines(5));
+    heightLines->setVertices(regTriangulation->MakeHeightLines(20));
     //mObjects.push_back(hl);
 
-    mRaindrops.push_back(new RainDrop({0,0,100}, regTriangulation->scale));
+    mCloud = new Cloud(500.f, regTriangulation->scale, regTriangulation);
+
+    //mCloud->mRainDrops.push_back(new RainDrop({200,200,100}, regTriangulation->scale, regTriangulation));
 
 
 }
@@ -73,6 +76,7 @@ RenderWindow::~RenderWindow()
     glDeleteVertexArrays( 1, &mVAO );
     glDeleteBuffers( 1, &mVBO );
     delete heightLines;
+    delete mCloud;
     for (auto p : mObjects) {
         delete p;
     }
@@ -162,16 +166,15 @@ void RenderWindow::init()
     {
         (*i)->init(mMatrixUniform0);
     }
-    for (auto i = mRaindrops.begin(); i != mRaindrops.end(); i++)
-    {
-        (*i)->init(0);
-    }
+
 
     mLight = new Light();
     mLight->init(2);
     mLight->setOrbitPoint({250, 250, 400});
 
     heightLines->init(0);
+
+    mCloud->init(0);
 
     xyz->init(0);
 
@@ -205,14 +208,19 @@ void RenderWindow::render()
     glUniformMatrix4fv(mMatrixUniform0, 1, GL_FALSE, mLight->mMatrix.constData());
     mLight->draw();
 
-    glUniformMatrix4fv(mMatrixUniform0, 1, GL_FALSE, heightLines->mMatrix.constData());
-    heightLines->draw();
+    if (DrawHeightLines) {
+        glUniformMatrix4fv(mMatrixUniform0, 1, GL_FALSE, heightLines->mMatrix.constData());
+        heightLines->draw();
+    }
 
-    for (auto i = mRaindrops.begin(); i != mRaindrops.end(); i++)
+    for (auto i = mCloud->mRainDrops.begin(); i != mCloud->mRainDrops.end(); i++)
     {
         glUniformMatrix4fv(mMatrixUniform0, 1, GL_FALSE, (*i)->mMatrix.constData());
         (*i)->draw();
     }
+
+    glUniformMatrix4fv(mMatrixUniform0, 1, GL_FALSE, mCloud->mMatrix.constData());
+    mCloud->draw();
 
     glUseProgram(mShaderProgram[2]->getProgram());
     mActiveCamera->update(pMatrixUniform2, vMatrixUniform2);
@@ -433,7 +441,7 @@ void RenderWindow::wheelEvent(QWheelEvent *event)
 
 void RenderWindow::Setup() {
 
-    mCamera2.SetPosition({0,0,150});
+    mCamera2.SetPosition({250,500,150});
     mCamera2.lookAt({250,250,0});
 
 }
@@ -445,6 +453,11 @@ void RenderWindow::ResetCamera()
 
 }
 
+void RenderWindow::TellCloudRainAmount(int amount)
+{
+    mCloud->mRainAmount = amount;
+}
+
 void RenderWindow::Tick(float deltaTime)
 {
     for (auto p : mObjects) {
@@ -452,10 +465,7 @@ void RenderWindow::Tick(float deltaTime)
 
     }
 
-    for (auto i = mRaindrops.begin(); i != mRaindrops.end(); i++)
-    {
-        (*i)->Tick(deltaTime);
-    }
+    mCloud->Tick(deltaTime);
 
     QVector3D AttemptedMovement;
     if (mCurrentInputs[Qt::Key_W]) {

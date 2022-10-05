@@ -26,6 +26,48 @@
      </widget>
     </item>
     <item>
+     <widget class="QPushButton" name="showHideHeightLines">
+      <property name="text">
+       <string>Vis/Skjul høydelinjer</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>15</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Regn-mengde</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSlider" name="horizontalSlider">
+      <property name="toolTip">
+       <string>Regn</string>
+      </property>
+      <property name="statusTip">
+       <string>Regn</string>
+      </property>
+      <property name="whatsThis">
+       <string>Regn-mengde</string>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
      <layout class="QVBoxLayout" name="OpenGLLayout"/>
     </item>
    </layout>

@@ -17,6 +17,7 @@ public:
     float mSize{0.f};
     static inline float scale{1};
     std::vector<Vertex> MakeHeightLines(float heightInterval);
+    Las::Triangle GetTriangle(float x, float y);
 private:
     bool CheckTriangleHeight(QVector3D p1, QVector3D p2, QVector3D p3, float h);
     bool CheckTriangleHeight(int triIndex, float h);

@@ -7,6 +7,7 @@ TARGET      = 3D-programmering
 
 SOURCES += main.cpp \
     camera.cpp \
+    cloud.cpp \
     heightlines.cpp \
     lastextreader.cpp \
     light.cpp \
@@ -14,6 +15,7 @@ SOURCES += main.cpp \
     mainwindow.cpp \
     octahedronball.cpp \
     raindrop.cpp \
+    raintrails.cpp \
     regulartriangulation.cpp \
     renderwindow.cpp \
     shader.cpp \
@@ -25,6 +27,7 @@ SOURCES += main.cpp \
     xyz.cpp
 
 HEADERS += \
+    cloud.h \
     heightlines.h \
     lastextreader.h \
     light.h \
@@ -33,6 +36,7 @@ HEADERS += \
     mainwindow.h \
     octahedronball.h \
     raindrop.h \
+    raintrails.h \
     regulartriangulation.h \
     renderwindow.h \
     shader.h \
