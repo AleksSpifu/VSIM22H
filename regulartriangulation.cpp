@@ -156,21 +156,17 @@ void print(std::string s) {
 std::vector<Vertex> RegularTriangulation::MakeHeightLines(float heightInterval)
 {
     std::vector<Vertex> vertices;
-    // finn maks høyde
     float maxHeight = 0;
     for (auto v : mVertices) {
         maxHeight = std::max(maxHeight, v.GetXYZ().z());
     }
     heightInterval *= pointCloud.scale;
-    // finn ut hvor mange høydelinjer som skal tegnes
     int linesToDraw = maxHeight / heightInterval;
     std::unordered_map<int, bool> drawnTriangles;
     std::stack<int> trianglesToDraw;
 
-    // for hver høyde:
     for (int i = 1; i <= linesToDraw; i++) {
         float h = heightInterval * i;
-        // finn en eller annen trekant med riktig høyde
 
 
         for (int ti = 0; ti < pointCloud.indicesAndNeighbours.size(); ti++) {
@@ -178,10 +174,6 @@ std::vector<Vertex> RegularTriangulation::MakeHeightLines(float heightInterval)
 
             int singleIndex{0};
             for (int j = 0; j < 3; j++) {
-
-                // Fix me
-                //loop gjennom alle 3 punktene, finn indeks som er minst, og index som er høyest, og da er den indexen som ikke er brukt enda enten over eller under høyden, og det tilsier hvilket punkt som er den single
-
                 if (
                         ((mVertices[t.indicies[j]].GetXYZ().z() > h) &&
                          (
@@ -196,21 +188,6 @@ std::vector<Vertex> RegularTriangulation::MakeHeightLines(float heightInterval)
                              ))
                         ) {
                     singleIndex = j;
-//                    QVector3D p1 = mVertices[t.indicies[singleIndex]].GetXYZ();
-//                    QVector3D p2 = mVertices[t.indicies[(singleIndex + 1) % 3]].GetXYZ();
-//                    QVector3D p3 = mVertices[t.indicies[(singleIndex + 2) % 3]].GetXYZ();
-//                    if (CheckTriangleHeight(p1, p2, p3, h)) {
-
-//                        float percentageOfHeight = (h-p2.z()) / (p1.z()-p2.z());
-//                        Vertex v1{p2+(p1-p2)*percentageOfHeight, {1,1,1}};
-//                        percentageOfHeight = (h-p3.z()) / (p1.z()-p3.z());
-//                        Vertex v2{p3+(p1-p3)*percentageOfHeight, {1,1,1}};
-//                        if (v1.GetXYZ().x() < 0 || v1.GetXYZ().y() < 0 || v2.GetXYZ().x() < 0 || v2.GetXYZ().y() < 0) {
-//                            std::cout << "something is wrong, i can feel it" << std::endl;
-//                        }
-
-
-//                    }
                 }
             }
             QVector3D p1 = mVertices[t.indicies[singleIndex]].GetXYZ();
@@ -231,54 +208,6 @@ std::vector<Vertex> RegularTriangulation::MakeHeightLines(float heightInterval)
             }
 
         }
-
-        // sjekk om det er 1 eller 2 punkter som er høyere enn høydelinjen, avhengig av det blir det annerledes
-
-
-
-
-
-        //        while (!drawnTriangles[next]) {
-
-        //            int singleIndex;
-        //            for (int j = 0; j < 3; j++) {
-        //                if ((mVertices[pointCloud.indicesAndNeighbours[next].indicies[j]].GetXYZ().z() > h) &&
-        //                        (
-        //                            (mVertices[pointCloud.indicesAndNeighbours[next].indicies[(j+1)%3]].GetXYZ().z() < h) ==
-        //                            (mVertices[pointCloud.indicesAndNeighbours[next].indicies[(j+2)%3]].GetXYZ().z() < h))
-        //                        ) {
-        //                    singleIndex = j;
-
-        //                }
-        //            }
-
-        //            QVector3D p1 = mVertices[pointCloud.indicesAndNeighbours[next].indicies[singleIndex]].GetXYZ();
-        //            QVector3D p2 = mVertices[pointCloud.indicesAndNeighbours[next].indicies[(singleIndex + 1) % 3]].GetXYZ();
-        //            QVector3D p3 = mVertices[pointCloud.indicesAndNeighbours[next].indicies[(singleIndex + 2) % 3]].GetXYZ();
-
-
-        //            float percentageOfHeight = (h-p2.z()) / (p1.z()-p2.z());
-        //            Vertex v1{p2+(p1-p2)*percentageOfHeight, {1,1,1}};
-        //            percentageOfHeight = (h-p3.z()) / (p1.z()-p3.z());
-        //            Vertex v2{p3+(p1-p3)*percentageOfHeight, {1,1,1}};
-        //            vertices.push_back(v1);
-        //            vertices.push_back(v2);
-        //            drawnTriangles[next] = true;
-
-
-        //            for (int j = 0; j < 3; j++) {
-        //                if (pointCloud.indicesAndNeighbours[next].neighbours[j] < 0) continue;
-        //                if (!CheckTriangleHeight(pointCloud.indicesAndNeighbours[next].neighbours[j], h)) continue;
-        //                if (drawnTriangles[pointCloud.indicesAndNeighbours[next].neighbours[j]]) continue;
-        //                trianglesToDraw.push(pointCloud.indicesAndNeighbours[next].neighbours[j]);
-
-        //            }
-        //            next = trianglesToDraw.top();
-        //            trianglesToDraw.pop();
-
-
-        //        }
-
     }
 
 

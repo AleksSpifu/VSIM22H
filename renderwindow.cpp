@@ -57,7 +57,7 @@ RenderWindow::RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow)
     mRenderTimer = new QTimer(this);
 
     xyz = new XYZ;
-    regTriangulation = new RegularTriangulation("vestlandet_stor.txt");
+    regTriangulation = new RegularTriangulation("trysilfjellet.txt");
     mObjects.push_back(regTriangulation);
 
     heightLines = new HeightLines;
