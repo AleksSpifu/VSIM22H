@@ -115,7 +115,7 @@ void RainDrop::Tick(float deltaTime)
         groundNormal.normalize();
 
         QVector3D slideAlongNormal = mVelocity - 2 * (QVector3D::dotProduct(mVelocity, groundNormal)) * groundNormal;
-        mVelocity = mVelocity + slideAlongNormal;
+        mVelocity = (mVelocity + slideAlongNormal) * 0.5f;
         mVelocity = mVelocity * mFriction;
         if (!mIsOnGround) {
             mVelocity = mVelocity * 0.9;

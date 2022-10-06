@@ -21,7 +21,7 @@ private:
     bool mIsOnGround{false};
     bool mHasReachedGround{false};
     class Cloud* mCloud;
-    float mFriction{0.5};
+    float mFriction{0.999};
     float mScale{0.5};
     static inline float mWorldScale{1};
     QVector3D mAcceleration{0, 0, -9.81};
